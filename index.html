@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="ro" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Raport de securitate — Voluntar.md</title>
+  <meta name="description" content="Raport educațional de testare a securității pentru platforma Voluntar.md, realizat cu OWASP ZAP și Postman.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html { scroll-padding-top: 4rem; font-size: 13px; }
+    pre code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    @media print {
+      details { display: block; }
+      details > summary { display: none; }
+      details > *:not(summary) { display: block !important; }
+      article, section { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased">
+
+<!-- ============ NAV ============ -->
+<header class="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur print:hidden">
+  <div class="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
+    <a href="#top" class="shrink-0 font-bold text-emerald-700">🤝 Voluntar.md <span class="font-normal text-slate-500">· Security</span></a>
+    <nav class="flex gap-1 overflow-x-auto text-sm">
+      <a class="whitespace-nowrap rounded-md px-2.5 py-1.5 text-slate-600 hover:bg-emerald-50 hover:text-emerald-700" href="#tools">Instrumente</a>
+      <a class="whitespace-nowrap rounded-md px-2.5 py-1.5 text-slate-600 hover:bg-emerald-50 hover:text-emerald-700" href="#zap">ZAP</a>
+      <a class="whitespace-nowrap rounded-md px-2.5 py-1.5 text-slate-600 hover:bg-emerald-50 hover:text-emerald-700" href="#postman">Postman</a>
+      <a class="whitespace-nowrap rounded-md px-2.5 py-1.5 text-slate-600 hover:bg-emerald-50 hover:text-emerald-700" href="#manual">Formular</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section id="top" class="bg-gradient-to-br from-emerald-800 via-emerald-700 to-teal-600 text-white">
+  <div class="mx-auto max-w-5xl px-4 py-8 sm:py-10">
+    <p class="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-sm font-medium">🛡️ Security Testing · Raport educațional</p>
+    <h1 class="mt-3 text-2xl font-extrabold tracking-tight sm:text-3xl">Evaluarea securității — Voluntar.md</h1>
+    <p class="mt-2 max-w-3xl text-base text-emerald-50">Familiarizare cu două instrumente de testare (OWASP ZAP și Postman), scripturi de testare a securității și testarea unei aplicații personale: platforma de voluntariat realizată la practică.</p>
+    <p class="mt-4 text-sm text-emerald-100"><span class="font-semibold">Țintă declarată:</span>
+      <a class="underline decoration-emerald-200 underline-offset-2 hover:text-white" href="https://zahuruslan.github.io/voluntar-md/" target="_blank" rel="noopener noreferrer">https://zahuruslan.github.io/voluntar-md/</a></p>
+    <div class="mt-4 flex flex-wrap gap-2 print:hidden">
+      <a href="#tools" class="rounded-lg bg-white px-5 py-2.5 font-semibold text-emerald-800 shadow hover:bg-emerald-50">Începe evaluarea</a>
+      <button id="btn-collection" class="rounded-lg border border-white/50 px-5 py-2.5 font-semibold hover:bg-white/10">⬇ Descarcă colecția Postman</button>
+      <button onclick="window.print()" class="rounded-lg border border-white/50 px-5 py-2.5 font-semibold hover:bg-white/10">Imprimă / Salvează PDF</button>
+    </div>
+
+    <dl class="mt-5 grid grid-cols-2 gap-3 sm:max-w-md">
+      <div class="rounded-xl bg-white/10 p-4"><dt class="text-sm text-emerald-100">Instrumente</dt><dd class="text-xl font-bold">2</dd></div>
+      <div class="rounded-xl bg-white/10 p-4"><dt class="text-sm text-emerald-100">Teste Postman</dt><dd id="stat-tests" class="text-xl font-bold">0</dd></div>
+    </dl>
+  </div>
+</section>
+
+<main class="mx-auto max-w-5xl space-y-9 px-4 py-6">
+
+
+
+
+  <!-- 03 TOOLS -->
+  <section id="tools">
+    <p class="text-sm font-bold uppercase tracking-widest text-emerald-600">03</p>
+    <h2 class="text-xl font-bold">Cele două instrumente</h2>
+    <p class="mt-2 text-slate-600">Ce face fiecare, de ce l-am ales și cum se completează reciproc.</p>
+
+    <div class="mt-4 grid gap-5 md:grid-cols-2">
+      <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center gap-3"><span class="text-3xl">⚡</span>
+          <div><h3 class="text-lg font-bold">Instrumentul 1 — OWASP ZAP</h3><p class="text-sm text-slate-500">Zed Attack Proxy · open-source</p></div></div>
+        <p class="mt-4 text-sm text-slate-700">Proxy de interceptare și scanner de securitate pentru aplicații web. Explorează automat site-ul (Spider), analizează pasiv fiecare răspuns și poate rula atacuri active controlate.</p>
+        <ul class="mt-3 space-y-1.5 text-sm text-slate-700">
+          <li>• Detectează automat: antete lipsă, cookie-uri nesigure, resurse fără SRI, mixed content.</li>
+          <li>• AJAX Spider — util pentru paginile care se bazează pe JavaScript.</li>
+          <li>• Exportă rapoarte HTML / JSON / Markdown.</li>
+        </ul>
+        <a class="mt-4 inline-block text-sm font-semibold text-emerald-700 hover:underline" href="#zap">Ghid de utilizare →</a>
+      </article>
+
+      <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center gap-3"><span class="text-3xl">🚀</span>
+          <div><h3 class="text-lg font-bold">Instrumentul 2 — Postman</h3><p class="text-sm text-slate-500">Platformă pentru testarea API / HTTP</p></div></div>
+        <p class="mt-4 text-sm text-slate-700">Permite construirea precisă a cererilor HTTP (metodă, antete, corp) și scrierea de verificări în JavaScript, rulate manual sau automat, în colecții.</p>
+        <ul class="mt-3 space-y-1.5 text-sm text-slate-700">
+          <li>• Scripturi <code class="rounded bg-slate-100 px-1">pm.test</code> cu PASS / FAIL per verificare.</li>
+          <li>• Variabile (<code class="rounded bg-slate-100 px-1">{{baseUrl}}</code>) și Collection Runner.</li>
+          <li>• Newman: aceleași teste din linia de comandă / CI.</li>
+        </ul>
+        <a class="mt-4 inline-block text-sm font-semibold text-emerald-700 hover:underline" href="#postman">Colecția de teste →</a>
+      </article>
+    </div>
+
+  </section>
+
+  <!-- 04 ZAP -->
+  <section id="zap">
+    <p class="text-sm font-bold uppercase tracking-widest text-emerald-600">04</p>
+    <h2 class="text-xl font-bold">OWASP ZAP — familiarizare și utilizare</h2>
+    <p class="mt-2 text-slate-600">Pași practici, de la instalare la raport.</p>
+
+    <ol class="mt-4 space-y-4">
+      <li class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h3 class="font-bold"><span class="mr-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-sm text-white">1</span>Instalare</h3>
+        <p class="mt-2 text-sm text-slate-700">Descarcă ZAP de pe zaproxy.org (necesită Java, inclus în installer-ul pentru Windows) sau folosește imaginea Docker.</p>
+        <pre class="mt-3 overflow-x-auto rounded-lg bg-slate-900 p-4 text-sm text-slate-100"><code>docker pull ghcr.io/zaproxy/zaproxy:stable</code></pre>
+      </li>
+
+
+      <li class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h3 class="font-bold"><span class="mr-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-sm text-white">2</span>Scanare pasivă (baseline) pe site-ul public</h3>
+        <p class="mt-2 text-sm text-slate-700">Baseline-ul explorează limitat site-ul și analizează pasiv răspunsurile, fără atacuri active. Este potrivit pentru adresa publică.</p>
+        <p class="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">PowerShell (Windows)</p>
+        <pre class="mt-1 overflow-x-auto rounded-lg bg-slate-900 p-4 text-sm text-slate-100"><code>docker run --rm -v "${PWD}:/zap/wrk/:rw" -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://zahuruslan.github.io/voluntar-md/ -r zap-raport.html</code></pre>
+        <p class="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Bash (Linux / macOS)</p>
+        <pre class="mt-1 overflow-x-auto rounded-lg bg-slate-900 p-4 text-sm text-slate-100"><code>docker run --rm -v "$(pwd):/zap/wrk/:rw" -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://zahuruslan.github.io/voluntar-md/ -r zap-raport.html</code></pre>
+      </li>
+
+      <li class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h3 class="font-bold"><span class="mr-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-sm text-white">3</span>Scanare activă — numai pe copie locală</h3>
+        <p class="mt-2 text-sm text-slate-700">Clonează repo-ul aplicației, pornește un server local și țintește <code class="rounded bg-slate-100 px-1">localhost</code> din ZAP (Automated Scan → Attack).</p>
+        <pre class="mt-3 overflow-x-auto rounded-lg bg-slate-900 p-4 text-sm text-slate-100"><code>git clone https://github.com/zahuruslan/voluntar-md.git
+cd voluntar-md
+python -m http.server 8080
+# în ZAP: Automated Scan → URL: http://localhost:8080 → Attack</code></pre>
+        
+      </li>
+
+      <li class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h3 class="font-bold"><span class="mr-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-sm text-white">4</span>Interpretarea alertelor</h3>
+        <p class="mt-2 text-sm text-slate-700">Pentru site-uri statice, alertele frecvente sunt de configurare. Verifică în raportul tău dacă apar (numele exacte pot varia între versiuni):</p>
+        <ul class="mt-3 grid gap-2 text-sm text-slate-700 sm:grid-cols-2">
+          <li class="rounded-lg bg-slate-50 p-2.5">Content Security Policy (CSP) Header Not Set</li>
+          <li class="rounded-lg bg-slate-50 p-2.5">Missing Anti-clickjacking Header</li>
+          <li class="rounded-lg bg-slate-50 p-2.5">X-Content-Type-Options Header Missing</li>
+          <li class="rounded-lg bg-slate-50 p-2.5">Sub Resource Integrity Attribute Missing</li>
+          <li class="rounded-lg bg-slate-50 p-2.5">Cross-Domain JavaScript Source File Inclusion</li>
+          <li class="rounded-lg bg-slate-50 p-2.5">Strict-Transport-Security Header</li>
+        </ul>
+        <p class="mt-3 text-sm text-slate-600">Fiecare alertă relevantă se trece în, cu captura și cererea/răspunsul ca dovadă. O alertă nu este automat o vulnerabilitate exploatabilă: confirmă impactul înainte de raportare.</p>
+      </li>
+
+      <li class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h3 class="font-bold"><span class="mr-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-sm text-white">5</span>Raport</h3>
+        <p class="mt-2 text-sm text-slate-700">Din GUI: <em>Report → Generate Report</em> (HTML). Atașează raportul generat la predarea lucrării.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- 05 POSTMAN -->
+  <section id="postman">
+    <p class="text-sm font-bold uppercase tracking-widest text-emerald-600">05</p>
+    <h2 class="text-xl font-bold">Postman — scripturi de testare</h2>
+    <p class="mt-2 text-slate-600">Colecție de teste HTTP scriptate pentru Voluntar.md. Fiecare scenariu are scriptul gata de copiat.</p>
+
+    <div class="mt-4 grid gap-5 lg:grid-cols-2">
+      <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h3 class="font-bold">Configurare</h3>
+        <ol class="mt-3 list-decimal space-y-2 pl-5 text-sm text-slate-700">
+          <li>Apasă <strong>Descarcă colecția Postman</strong> (sus) și importă fișierul în Postman (<em>Import</em>).</li>
+          <li>Variabilele de colecție sunt deja setate: <code class="rounded bg-slate-100 px-1">baseUrl</code> și <code class="rounded bg-slate-100 px-1">baseUrlHttp</code>.</li>
+          <li>Rulează tot folderul cu <em>Collection Runner</em> și urmărești PASS / FAIL în fila <em>Test Results</em>.</li>
+          
+        </ol>
+      </div>
+      <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h3 class="font-bold">Rulare din linia de comandă (Newman)</h3>
+        <pre class="mt-3 overflow-x-auto rounded-lg bg-slate-900 p-4 text-sm text-slate-100"><code>npm install -g newman
+newman run voluntar-md.postman_collection.json</code></pre>
+        <p class="mt-3 text-sm text-slate-600"></p>
+      </div>
+    </div>
+
+
+    <div id="tests-root" class="mt-5 space-y-6"></div>
+  </section>
+
+  <!-- 06 MANUAL -->
+  <section id="manual">
+    <p class="text-sm font-bold uppercase tracking-widest text-emerald-600">06</p>
+    <h2 class="text-xl font-bold">Testarea manuală a formularului de înregistrare</h2>
+    <p class="mt-2 text-slate-600">Scenarii pentru <code class="rounded bg-slate-100 px-1">contact.html</code>, executate în browser cu DevTools (F12), cu date fictive.</p>
+
+    <div class="mt-4 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+      <table class="w-full text-left text-sm">
+        <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+          <tr><th class="px-4 py-2">ID</th><th class="px-4 py-2">Scenariu</th><th class="px-4 py-2">Date de test</th><th class="px-4 py-2">Rezultat așteptat</th></tr>
+        </thead>
+        <tbody id="manual-body" class="divide-y divide-slate-100"></tbody>
+      </table>
+    </div>
+    
+  </section>
+
+
+
+
+
+</main>
+
+<footer class="border-t border-slate-200 bg-white">
+  <div class="mx-auto max-w-5xl px-4 py-8 text-sm text-slate-500">
+    <p class="font-semibold text-slate-700">Raport de securitate — Voluntar.md</p>
+    
+  </div>
+</footer>
+
+<!-- ============ DATA ============ -->
+<script id="data">
+const BASE = "https://zahuruslan.github.io/voluntar-md";
+const BASE_HTTP = "http://zahuruslan.github.io/voluntar-md";
+
+const CATEGORIES = {
+  A: { title: "A. Disponibilitate și HTTPS", desc: "Paginile răspund corect, HTTP este redirecționat spre HTTPS, erorile nu expun detalii." },
+  B: { title: "B. Antete HTTP și politica browserului", desc: "Antete de securitate, divulgare de informații și CORS." },
+  C: { title: "C. Fișiere sensibile expuse", desc: "Fișiere care nu trebuie să fie publice." },
+  D: { title: "D. Metode HTTP și manipularea inputului", desc: "Metode nepermise, parametri reflectați, traversare de căi, listare de directoare." },
+  E: { title: "E. Analiza conținutului paginilor", desc: "Secrete în sursă, mixed content, SRI, linkuri externe, formulare." }
+};
+
+const TESTS = [
+{
+  id: "A1", cat: "A", method: "GET", title: "Paginile principale răspund corect",
+  url: "{{baseUrl}}/index.html",
+  purpose: "Confirmă că pagina de start este disponibilă, servită ca HTML și într-un timp rezonabil. Repetă pentru projects, help, gallery, blog și contact (schimbă numele fișierului).",
+  expected: "200, Content-Type text/html, timp de răspuns sub 2 secunde.",
+  limitation: "Timpul depinde de rețea și de CDN; nu este o probă de securitate.",
+  fix: "Verifică publicarea în Settings → Pages și că toate fișierele sunt în repository.",
+  script: String.raw`pm.test("Pagina răspunde 200", function () {
+  pm.response.to.have.status(200);
+});
+
+pm.test("Content-Type este HTML", function () {
+  pm.expect(pm.response.headers.get("Content-Type")).to.include("text/html");
+});
+
+pm.test("Răspuns sub 2 secunde", function () {
+  pm.expect(pm.response.responseTime).to.be.below(2000);
+});`
+},
+{
+  id: "A2", cat: "A", method: "GET", title: "HTTP este redirecționat spre HTTPS",
+  url: "{{baseUrlHttp}}/index.html", noRedirect: true,
+  purpose: "Verifică dacă o cerere pe HTTP nu rămâne necriptată. Cererea nu urmează redirecționările, ca să poată fi inspectat antetul Location.",
+  expected: "Cod 301/302/307/308 și Location care începe cu https://.",
+  limitation: "Unele rețele sau proxy-uri pot modifica cererea HTTP; repetă testul din altă rețea dacă rezultatul este neașteptat.",
+  fix: "În GitHub Pages activează „Enforce HTTPS”.",
+  script: String.raw`pm.test("HTTP este redirecționat", function () {
+  pm.expect([301, 302, 307, 308]).to.include(pm.response.code);
+});
+
+pm.test("Destinația redirecționării este HTTPS", function () {
+  var loc = pm.response.headers.get("Location") || "";
+  pm.expect(loc.indexOf("https://")).to.equal(0);
+});`
+},
+{
+  id: "A3", cat: "A", method: "GET", title: "Pagina inexistentă — gestionarea erorilor",
+  url: "{{baseUrl}}/pagina-inexistenta-xyz.html",
+  purpose: "Verifică dacă pagina 404 este corectă și nu dezvăluie detalii interne (căi, stack trace, versiuni).",
+  expected: "404 fără mesaje de eroare tehnice.",
+  limitation: "Un 404 generic nu spune nimic despre alte rute.",
+  fix: "Păstrează o pagină 404.html simplă, fără informații despre infrastructură.",
+  script: String.raw`pm.test("Pagina inexistentă returnează 404", function () {
+  pm.response.to.have.status(404);
+});
+
+pm.test("404 nu expune detalii interne", function () {
+  var body = pm.response.text().toLowerCase();
+  ["stack trace", "exception", "/var/www", "node_modules", "traceback"].forEach(function (m) {
+    pm.expect(body).to.not.include(m);
+  });
+});`
+},
+{
+  id: "B1", cat: "B", method: "GET", title: "Antete de securitate — pagina de start",
+  url: "{{baseUrl}}/index.html",
+  purpose: "Verifică prezența antetelor care reduc riscurile din browser. Fiecare verificare este un test separat, ca să se vadă exact ce lipsește.",
+  expected: "Depinde de platformă. Pe GitHub Pages este posibil ca CSP, X-Frame-Options și Referrer-Policy să lipsească.",
+  limitation: "Nu toate antetele sunt universal obligatorii. Un FAIL este o constatare doar după evaluarea contextului.",
+  fix: "Meta CSP în HTML sau un proxy/CDN care adaugă antete (GitHub Pages nu permite antete personalizate).",
+  script: String.raw`var h = function (n) { return pm.response.headers.get(n); };
+
+pm.test("Strict-Transport-Security este prezent", function () {
+  pm.expect(h("Strict-Transport-Security"), "HSTS lipsă").to.exist;
+});
+
+pm.test("X-Content-Type-Options: nosniff", function () {
+  var v = h("X-Content-Type-Options");
+  pm.expect(v, "Antet lipsă").to.exist;
+  pm.expect(v.toLowerCase()).to.include("nosniff");
+});
+
+pm.test("Content-Security-Policy este prezent", function () {
+  pm.expect(h("Content-Security-Policy"), "CSP lipsă").to.exist;
+});
+
+pm.test("Protecție împotriva clickjacking-ului", function () {
+  var xfo = h("X-Frame-Options");
+  var csp = h("Content-Security-Policy") || "";
+  pm.expect(Boolean(xfo) || csp.indexOf("frame-ancestors") !== -1, "Nici X-Frame-Options, nici frame-ancestors").to.be.true;
+});
+
+pm.test("Referrer-Policy este prezent", function () {
+  pm.expect(h("Referrer-Policy"), "Referrer-Policy lipsă").to.exist;
+});`
+},
+{
+  id: "B2", cat: "B", method: "GET", title: "Divulgarea informațiilor despre server",
+  url: "{{baseUrl}}/index.html",
+  purpose: "Verifică dacă antetele răspunsului dezvăluie tehnologia sau versiunea serverului.",
+  expected: "Fără X-Powered-By și fără numere de versiune în Server.",
+  limitation: "Ascunderea versiunii reduce zgomotul, dar nu înlocuiește actualizările.",
+  fix: "Elimină antetele care dezvăluie versiuni, dacă ai control asupra proxy-ului.",
+  script: String.raw`pm.test("Fără antetul X-Powered-By", function () {
+  pm.expect(pm.response.headers.has("X-Powered-By")).to.be.false;
+});
+
+pm.test("Antetul Server nu dezvăluie versiunea", function () {
+  var s = pm.response.headers.get("Server") || "";
+  pm.expect(/\d+\.\d+/.test(s), "Server: " + s).to.be.false;
+});`
+},
+{
+  id: "B3", cat: "B", method: "GET", title: "Politica CORS",
+  url: "{{baseUrl}}/index.html", headers: [["Origin", "https://evil-attacker.example"]],
+  purpose: "Verifică dacă o origine neaprobată este reflectată în Access-Control-Allow-Origin și dacă wildcard-ul este combinat cu credențiale.",
+  expected: "Originea de test nu este reflectată; combinația „*” + credențiale nu apare.",
+  limitation: "Pentru un site static public, „Access-Control-Allow-Origin: *” este adesea acceptabil, deoarece conținutul este oricum public. Evaluează în context.",
+  fix: "Dacă adaugi un API, folosește o listă explicită de origini aprobate.",
+  script: String.raw`pm.test("Originea neaprobată nu este reflectată", function () {
+  var o = pm.response.headers.get("Access-Control-Allow-Origin") || "";
+  pm.expect(o).to.not.equal("https://evil-attacker.example");
+});
+
+pm.test("Wildcard-ul nu este combinat cu credențiale", function () {
+  var o = pm.response.headers.get("Access-Control-Allow-Origin") || "";
+  var c = (pm.response.headers.get("Access-Control-Allow-Credentials") || "").toLowerCase();
+  pm.expect(o === "*" && c === "true").to.be.false;
+});`
+},
+{
+  id: "C1", cat: "C", method: "GET", title: "Fișiere sensibile nu sunt publice",
+  url: "{{baseUrl}}/index.html",
+  purpose: "Cere o listă de fișiere care nu trebuie publicate (.git, .env, backup-uri, configurări) și verifică respingerea. Numărul de cereri este mic și fix.",
+  expected: "Toate returnează 404 (sau 403).",
+  limitation: "Lista este orientativă; un 404 nu dovedește că fișierul nu există în repository, ci doar că nu este servit.",
+  fix: "Nu comite fișiere .env, chei sau backup-uri; adaugă-le în .gitignore.",
+  script: String.raw`var base = pm.variables.get("baseUrl");
+var paths = ["/.git/config", "/.env", "/package.json", "/config.json", "/backup.zip", "/.DS_Store"];
+
+paths.forEach(function (p) {
+  pm.sendRequest(base + p, function (err, res) {
+    pm.test("Fișier inaccesibil: " + p, function () {
+      pm.expect(err).to.be.null;
+      pm.expect([403, 404]).to.include(res.code);
+    });
+  });
+});`
+},
+{
+  id: "D1", cat: "D", method: "POST", title: "POST către o pagină statică",
+  url: "{{baseUrl}}/contact.html", body: [["nume", "Test Voluntar"], ["email", "test@example.com"]],
+  purpose: "Un site static nu trebuie să proceseze POST. Verifică că serverul nu răspunde ca la o cerere normală și nu produce eroare internă.",
+  expected: "400, 403, 404 sau 405.",
+  limitation: "Formularul este procesat (dacă este) de JavaScript sau de un serviciu extern, nu de această pagină.",
+  fix: "Nu e necesară acțiune dacă metoda este respinsă.",
+  script: String.raw`pm.test("POST nu este acceptat pe pagina statică", function () {
+  pm.expect([400, 403, 404, 405]).to.include(pm.response.code);
+});
+
+pm.test("Fără eroare internă", function () {
+  pm.expect(pm.response.code).to.not.equal(500);
+});`
+},
+{
+  id: "D2", cat: "D", method: "DELETE", title: "DELETE către o pagină statică",
+  url: "{{baseUrl}}/index.html",
+  purpose: "Verifică că metodele care modifică starea sunt respinse.",
+  expected: "403, 404 sau 405.",
+  limitation: "Pe hosting static nu există o resursă care să poată fi ștearsă; testul este o verificare de bază.",
+  fix: "Nu e necesară acțiune dacă metoda este respinsă.",
+  script: String.raw`pm.test("DELETE este respins", function () {
+  pm.expect([403, 404, 405]).to.include(pm.response.code);
+});`
+},
+{
+  id: "D3", cat: "D", method: "GET", title: "Parametri reflectați (XSS reflectat)",
+  url: "{{baseUrl}}/projects.html?q=%22%3E%3Cimg%20src%3Dx%20onerror%3Dalert(1)%3E",
+  purpose: "Trimite un marker într-un parametru de URL și verifică dacă este reflectat în HTML-ul răspunsului.",
+  expected: "Markerul nu apare în corpul răspunsului.",
+  limitation: "Pe un site static, HTML-ul este mereu același, deci testul trece aproape sigur. XSS bazat pe DOM (JavaScript care citește location.search și scrie cu innerHTML) se verifică în browser sau cu ZAP AJAX Spider.",
+  fix: "Folosește textContent în loc de innerHTML și nu insera parametri din URL în DOM.",
+  script: String.raw`pm.test("Parametrul nu este reflectat în răspuns", function () {
+  var body = pm.response.text();
+  pm.expect(body).to.not.include("onerror=alert(1)");
+});
+
+pm.test("Fără eroare internă", function () {
+  pm.expect(pm.response.code).to.not.equal(500);
+});`
+},
+{
+  id: "D4", cat: "D", method: "GET", title: "Path traversal",
+  url: "{{baseUrl}}/%2e%2e/%2e%2e/%2e%2e/etc/passwd",
+  purpose: "Verifică dacă o cale codificată poate ieși din directorul publicat.",
+  expected: "400 sau 404; corpul nu conține conținut de fișier de sistem.",
+  limitation: "Pe hosting static fără procesare pe server este un test de bază.",
+  fix: "Nu mapa niciodată parametri din cerere direct pe căi de fișiere.",
+  script: String.raw`pm.test("Calea codificată este respinsă", function () {
+  pm.expect([400, 403, 404]).to.include(pm.response.code);
+});
+
+pm.test("Corpul nu conține conținut de sistem", function () {
+  pm.expect(pm.response.text()).to.not.include("root:x:0:0");
+});`
+},
+{
+  id: "D5", cat: "D", method: "GET", title: "Listarea directoarelor",
+  url: "{{baseUrl}}/img/",
+  purpose: "Verifică dacă un director (imagini) poate fi listat.",
+  expected: "403 sau 404; fără listă de fișiere.",
+  limitation: "Dacă directorul conține index.html, răspunsul va fi 200 cu pagina respectivă; verifică conținutul.",
+  fix: "Nu activa listarea directoarelor; adaugă un index.html gol dacă este nevoie.",
+  script: String.raw`pm.test("Directorul nu este listat", function () {
+  pm.expect([403, 404]).to.include(pm.response.code);
+  pm.expect(pm.response.text().toLowerCase()).to.not.include("index of /");
+});`
+},
+{
+  id: "E1", cat: "E", method: "GET", title: "Secrete în sursa paginii",
+  url: "{{baseUrl}}/contact.html",
+  purpose: "Caută șabloane uzuale de chei și parole în HTML-ul paginii. Repetă pe fiecare pagină și verifică și fișierele .js legate.",
+  expected: "Niciun șablon nu este găsit.",
+  limitation: "Căutarea după șabloane nu este exhaustivă. Cheile publice (ex. Maps embed) nu sunt automat secrete; evaluează contextul.",
+  fix: "Păstrează secretele pe server; într-un site static nu pune niciodată chei private în cod.",
+  script: String.raw`var body = pm.response.text();
+var patterns = {
+  "cheie API generică": /api[_-]?key\s*[:=]\s*["'][A-Za-z0-9_\-]{16,}["']/i,
+  "token sau parolă": /(secret|token|passwd|password)\s*[:=]\s*["'][^"']{8,}["']/i,
+  "cheie Google API": /AIza[0-9A-Za-z_\-]{35}/,
+  "cheie privată": /-----BEGIN (RSA |EC )?PRIVATE KEY-----/,
+  "cheie AWS": /AKIA[0-9A-Z]{16}/
+};
+
+Object.keys(patterns).forEach(function (name) {
+  pm.test("Fără " + name + " în sursă", function () {
+    pm.expect(patterns[name].test(body), name).to.be.false;
+  });
+});`
+},
+{
+  id: "E2", cat: "E", method: "GET", title: "Mixed content (resurse prin HTTP)",
+  url: "{{baseUrl}}/index.html",
+  purpose: "Caută scripturi, imagini, stiluri sau iframe-uri încărcate prin HTTP într-o pagină servită prin HTTPS.",
+  expected: "Nicio resursă încărcată prin http://.",
+  limitation: "Verifică doar HTML-ul inițial, nu resursele adăugate dinamic de JavaScript.",
+  fix: "Folosește https:// sau căi relative pentru toate resursele.",
+  script: String.raw`var html = pm.response.text();
+var found = (html.match(/<(?:script|img|iframe|link)\b[^>]*(?:src|href)=["']http:\/\/[^"']+/gi) || []);
+
+pm.test("Fără resurse încărcate prin HTTP", function () {
+  pm.expect(found, "Resurse HTTP: " + found.join(" | ")).to.have.lengthOf(0);
+});`
+},
+{
+  id: "E3", cat: "E", method: "GET", title: "Resurse externe fără Subresource Integrity",
+  url: "{{baseUrl}}/index.html",
+  purpose: "Scripturile și stilurile de pe domenii terțe (CDN) pot fi compromise la sursă. Atributul integrity face browserul să verifice hash-ul.",
+  expected: "Toate scripturile / stilurile externe au atributul integrity.",
+  limitation: "Imaginile și iframe-urile nu folosesc SRI. Dacă nu există resurse externe de acest tip, testul trece.",
+  fix: "Adaugă integrity + crossorigin sau găzduiește fișierele local.",
+  script: String.raw`var html = pm.response.text();
+var tags = (html.match(/<(?:script|link)\b[^>]*>/gi) || []).filter(function (t) {
+  var external = /(?:src|href)=["']https?:\/\//i.test(t);
+  var isLinkOk = !/^<link/i.test(t) || /rel=["']?stylesheet/i.test(t);
+  return external && isLinkOk;
+});
+var noSri = tags.filter(function (t) { return !/integrity=/i.test(t); });
+
+pm.test("Resursele externe au Subresource Integrity", function () {
+  pm.expect(noSri, "Fără SRI: " + noSri.join(" | ")).to.have.lengthOf(0);
+});`
+},
+{
+  id: "E4", cat: "E", method: "GET", title: "Linkuri target=\"_blank\" fără noopener",
+  url: "{{baseUrl}}/index.html",
+  purpose: "Un link care deschide o filă nouă fără rel=\"noopener\" poate da paginii deschise acces la window.opener.",
+  expected: "Toate linkurile target=\"_blank\" au rel cu noopener.",
+  limitation: "Browserele moderne tratează implicit target=\"_blank\" ca noopener; severitate scăzută.",
+  fix: "Adaugă rel=\"noopener noreferrer\".",
+  script: String.raw`var html = pm.response.text();
+var anchors = html.match(/<a\b[^>]*target=["']_blank["'][^>]*>/gi) || [];
+var bad = anchors.filter(function (a) { return !/rel=["'][^"']*noopener/i.test(a); });
+
+pm.test("Linkurile _blank au rel=noopener", function () {
+  pm.expect(bad, "Fără noopener: " + bad.join(" | ")).to.have.lengthOf(0);
+});`
+},
+{
+  id: "E5", cat: "E", method: "GET", title: "Formulare — destinația datelor",
+  url: "{{baseUrl}}/contact.html",
+  purpose: "Verifică dacă un formular trimite date prin HTTP necriptat și afișează acțiunea declarată, pentru a ști încotro pleacă datele.",
+  expected: "Niciun formular cu action http://.",
+  limitation: "Dacă trimiterea este făcută din JavaScript (fetch / XHR), atributul action nu o arată; vezi testul manual M8.",
+  fix: "Folosește exclusiv HTTPS pentru orice destinație a datelor.",
+  script: String.raw`var forms = pm.response.text().match(/<form\b[^>]*>/gi) || [];
+console.log("Formulare găsite: " + forms.length);
+forms.forEach(function (f) { console.log(f); });
+
+pm.test("Niciun formular nu trimite date prin HTTP", function () {
+  var insecure = forms.filter(function (f) { return /action=["']http:\/\//i.test(f); });
+  pm.expect(insecure, insecure.join(" | ")).to.have.lengthOf(0);
+});`
+}
+];
+
+const MANUAL = [
+  ["M1", "Câmpuri obligatorii goale", "Trimite formularul gol", "Mesaje de validare; nimic nu se trimite"],
+  ["M2", "Nume prea scurt", "„Ab” (2 caractere)", "Respins: minim 3 caractere"],
+  ["M3", "Email invalid", "abc, abc@, a@b", "Respins cu mesaj clar"],
+  ["M4", "Telefon", "abc123, 069123456 (valid), +37369123456 (valid), 0691234567890", "Doar formatele valide sunt acceptate"],
+  ["M5", "Vârstă la limite", "13, 14, 99, 100, -5, 14.5, text", "Acceptat doar 14–99"],
+  ["M6", "Mesaj peste limită", "Peste 1000 de caractere", "Respins sau trunchiat la 1000"],
+  ["M7", "Date cu markup (XSS)", "Nume și mesaj: <img src=x onerror=alert(1)>", "Se afișează ca text; niciun alert; nu este interpretat ca HTML"],
+  ["M8", "Destinația datelor", "DevTools → Network la trimitere", "Notează unde pleacă datele (fetch / serviciu extern / mailto / nicăieri)"],
+  ["M9", "Validare ocolită din client", "DevTools → Elements: șterge required, schimbă min/max, apoi trimite", "Dacă datele ajung la un serviciu, acesta trebuie să le respingă"],
+  ["M10", "Stocare locală", "DevTools → Application → Local/Session Storage după trimitere", "Fără date personale păstrate în browser"],
+  ["M11", "Protecție împotriva spamului", "Observă (fără a trimite în masă): CAPTCHA, honeypot, limită", "Notează dacă există vreo protecție"],
+  ["M12", "Consimțământ și politica de confidențialitate", "Deschide linkurile din bifa de acord", "Linkurile duc la pagini reale, nu la #"]
+];
+
+</script>
+
+<!-- ============ UI ============ -->
+<script>
+(function () {
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function load(key, fallback) {
+    try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; }
+  }
+  function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
+
+
+  var METHOD_STYLE = { GET: "bg-emerald-100 text-emerald-800", POST: "bg-amber-100 text-amber-800", DELETE: "bg-rose-100 text-rose-800" };
+
+  /* ---- Postman test cards ---- */
+  function renderTests() {
+    var root = document.getElementById("tests-root");
+    var html = "";
+    Object.keys(CATEGORIES).forEach(function (c) {
+      var list = TESTS.filter(function (t) { return t.cat === c; });
+      html += '<div><h3 class="text-xl font-bold">' + esc(CATEGORIES[c].title) + '</h3><p class="mt-1 text-sm text-slate-600">' + esc(CATEGORIES[c].desc) + '</p><div class="mt-4 space-y-4">';
+      list.forEach(function (t) {
+        html += '<article id="t-' + t.id + '" class="rounded-xl border border-slate-200 bg-white shadow-sm">' +
+          '<header class="flex flex-wrap items-center gap-3 border-b border-slate-100 p-4">' +
+            '<span class="rounded-md px-2 py-1 text-xs font-bold ' + METHOD_STYLE[t.method] + '">' + t.method + '</span>' +
+            '<h4 class="font-bold">' + t.id + ' · ' + esc(t.title) + '</h4>' +
+          '</header>' +
+          '<div class="space-y-3 p-4 text-sm">' +
+            '<p class="break-all rounded-lg bg-slate-100 px-3 py-2 font-mono text-xs text-slate-700">' + esc(t.url) + (t.noRedirect ? "  · fără urmărirea redirecționărilor" : "") + '</p>' +
+            '<p><strong>Scop:</strong> ' + esc(t.purpose) + '</p>' +
+            '<p><strong>Rezultat așteptat:</strong> ' + esc(t.expected) + '</p>' +
+            '<details class="group rounded-lg border border-slate-200"><summary class="cursor-pointer select-none px-3 py-2 font-semibold text-emerald-700">Script Postman (tab „Tests”)</summary>' +
+              '<div class="relative"><button type="button" data-copy="' + t.id + '" class="absolute right-2 top-2 rounded bg-slate-700 px-2 py-1 text-xs text-white hover:bg-slate-600 print:hidden">Copiază</button>' +
+              '<pre class="overflow-x-auto rounded-b-lg bg-slate-900 p-4 text-xs leading-relaxed text-slate-100"><code>' + esc(t.script) + '</code></pre></div></details>' +
+          '</div></article>';
+      });
+      html += "</div></div>";
+    });
+    root.innerHTML = html;
+  }
+
+  /* ---- Manual table ---- */
+  function renderManual() {
+    document.getElementById("manual-body").innerHTML = MANUAL.map(function (m) {
+      return '<tr class="align-top"><td class="px-4 py-3 font-semibold">' + m[0] + '</td><td class="px-4 py-3">' + esc(m[1]) + '</td>' +
+        '<td class="px-4 py-3 font-mono text-xs">' + esc(m[2]) + '</td><td class="px-4 py-3">' + esc(m[3]) + '</td>' + '</tr>';
+    }).join("");
+  }
+
+  /* ---- Downloads ---- */
+  function download(name, mime, text) {
+    var blob = new Blob([text], { type: mime });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  }
+
+  function buildCollection() {
+    var folders = Object.keys(CATEGORIES).map(function (c) {
+      return {
+        name: CATEGORIES[c].title,
+        item: TESTS.filter(function (t) { return t.cat === c; }).map(function (t) {
+          var req = { method: t.method, header: (t.headers || []).map(function (h) { return { key: h[0], value: h[1] }; }), url: { raw: t.url } };
+          if (t.body) { req.body = { mode: "urlencoded", urlencoded: t.body.map(function (b) { return { key: b[0], value: b[1] }; }) }; }
+          var item = { name: t.id + " · " + t.title, event: [{ listen: "test", script: { type: "text/javascript", exec: t.script.split("\n") } }], request: req };
+          if (t.noRedirect) { item.protocolProfileBehavior = { followRedirects: false }; }
+          return item;
+        })
+      };
+    });
+    return {
+      info: { name: "Voluntar.md — teste de securitate", schema: "https://schema.getpostman.com/json/collection/v2.1.0/collection.json" },
+      variable: [{ key: "baseUrl", value: BASE }, { key: "baseUrlHttp", value: BASE_HTTP }],
+      item: folders
+    };
+  }
+
+  document.addEventListener("click", function (e) {
+    var t = e.target;
+    var copyId = t.getAttribute && t.getAttribute("data-copy");
+    if (copyId) {
+      var test = TESTS.filter(function (x) { return x.id === copyId; })[0];
+      var done = function () { t.textContent = "Copiat ✓"; setTimeout(function () { t.textContent = "Copiază"; }, 1500); };
+      if (navigator.clipboard) { navigator.clipboard.writeText(test.script).then(done); }
+    }
+  });
+
+  document.getElementById("btn-collection").addEventListener("click", function () {
+    download("voluntar-md.postman_collection.json", "application/json", JSON.stringify(buildCollection(), null, 2));
+  });
+
+  renderTests(); renderManual();
+  document.getElementById("stat-tests").textContent = TESTS.length;
+})();
+</script>
+</body>
+</html>
